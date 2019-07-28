@@ -13,6 +13,7 @@
     "canvas": "^2.5.0",
     "face-api.js": "^0.20.1",
     "opencv4nodejs": "^5.1.0",
+    "request": "^2.88.0",
     "typescript": "^3.5.3"
   }
 }
