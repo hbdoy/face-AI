@@ -28,13 +28,13 @@ async function run() {
         let detections = await faceapi.detectAllFaces(img, faceDetectionOptions);
 
         if (detections.length) {
-            console.log("Found Face");
+            // console.log("Found Face");
             allFrames.push({ file: buffer, num: detections.length });
         }
-        // identify every 3 sec
-        if (((Date.now() - tmpTime) / 1000) >= 3) {
+        // identify every 6 sec
+        if (((Date.now() - tmpTime) / 1000) >= 6) {
             if (allFrames.length > 0) {
-                console.log("Start Identify");
+                console.log("------ Start Identify ------");
                 allFrames = allFrames.sort((a, b) => {
                     // sort by the num of faces
                     return a.num < b.num ? 1 : -1;
@@ -124,33 +124,38 @@ function getCameraFrame() {
 function startIdentify(imgBuffer) {
     let now = new Date().toISOString().replace(/:/g, "").replace(".", "");
     return new Promise(async (resolve, reject) => {
-        let detectResult = await _detectFaces(imgBuffer);
-        let allFaceIds = detectResult.map((item) => {
-            if (item) {
-                return item.faceId;
-            }
-        });
-        if (allFaceIds[0] && allFaceIds.length > 0) {
-            let result = await _identifyPersons(allFaceIds);
-            let allPeople = result.map((item) => {
-                if (item && item.candidates.length > 0) {
-                    return item.candidates[0];
+        try {
+            let detectResult = await _detectFaces(imgBuffer);
+            let allFaceIds = detectResult.map((item) => {
+                if (item) {
+                    return item.faceId;
                 }
             });
-            if (allPeople[0]) {
-                console.log(allPeople);
-                // draw picture
-                let img = await canvas.loadImage(imgBuffer);
-                let detections = await faceapi.detectAllFaces(img, faceDetectionOptions);
-                let out = faceapi.createCanvasFromMedia(img);
-                faceapi.draw.drawDetections(out, detections);
-                saveFile(`${now}.jpg`, out.toBuffer('image/jpeg'));
-                resolve(`done, saved results to out/${now}.jpg`);
+            if (allFaceIds[0] && allFaceIds.length > 0) {
+                let result = await _identifyPersons(allFaceIds);
+                let allPeople = result.map((item) => {
+                    if (item && item.candidates.length > 0) {
+                        return item.candidates[0];
+                    }
+                });
+                if (allPeople[0]) {
+                    console.log(allPeople);
+                    // draw picture
+                    let img = await canvas.loadImage(imgBuffer);
+                    let detections = await faceapi.detectAllFaces(img, faceDetectionOptions);
+                    let out = faceapi.createCanvasFromMedia(img);
+                    faceapi.draw.drawDetections(out, detections);
+                    saveFile(`${now}.jpg`, out.toBuffer('image/jpeg'));
+                    resolve(`done, saved results to out/${now}.jpg`);
+                } else {
+                    reject("Found face, but can't identify any person");
+                }
             } else {
-                reject("Found face, but can't identify any person");
+                reject("Not found any faceId");
             }
-        } else {
-            reject("Not found any faceId");
+        }
+        catch (e) {
+            reject(e.toString());
         }
     });
 }
