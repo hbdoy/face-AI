@@ -1,6 +1,8 @@
 # face-AI
 Using face detection and recognition in JS or Nodejs
 
+[More](https://hackmd.io/UvkQDOQmRDeEjhe7cfORKA)
+
 ## Install
 ```
 npm install
