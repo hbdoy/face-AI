@@ -40,7 +40,7 @@ async function run() {
                     return a.num < b.num ? 1 : -1;
                 });
                 // use the photo of the largest number of faces
-                startIdentify(allFrames[0].file, img)
+                startIdentify(allFrames[0].file)
                     .then((res) => {
                         console.log(res);
                     })
